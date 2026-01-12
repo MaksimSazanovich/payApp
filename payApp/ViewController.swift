@@ -10,6 +10,8 @@ import UIKit
 
 
 class ViewController: UIViewController {
+    
+    private var selectedPrice = 100
 
     private lazy var personImage: UIImageView = {
         $0.image = .img1
@@ -41,7 +43,7 @@ class ViewController: UIViewController {
     }(UIButton(primaryAction: payButtonAction))
     
     private lazy var payButtonAction = UIAction { _ in
-        print(1)
+        print(self.selectedPrice)
     }
     
     override func viewDidLoad() {
@@ -120,6 +122,24 @@ class ViewController: UIViewController {
         ])
     }
     
+    @objc func selectVariant(sender: UIGestureRecognizer) {
+        PayVariants.allCases.forEach { variant in
+            
+            if let payVariant = self.view.viewWithTag(variant.rawValue) {
+                payVariant.layer.borderWidth = 0
+                payVariant.layer.borderColor = .none
+            }
+        }
+        
+        if let selectedTag = sender.view?.tag {
+            if let selectedView = self.view.viewWithTag(selectedTag) {
+                selectedView.layer.borderWidth = 2
+                selectedView.layer.borderColor = UIColor.white.cgColor
+                self.selectedPrice = selectedTag
+            }
+        }
+    }
+    
     //MARK: Create view
     private func createCircle(frame: CGRect) -> UIView {
         let circle = UIView()
@@ -140,13 +160,16 @@ class ViewController: UIViewController {
     }
     
     func createPayVariant(variant: PayVariants) -> UIView {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(selectVariant(sender: )))
+        
         let payView = UIView()
         payView.translatesAutoresizingMaskIntoConstraints = false
         payView.widthAnchor.constraint(equalToConstant: 100).isActive = true
         payView.heightAnchor.constraint(equalToConstant: 100).isActive = true
         payView.layer.cornerRadius = 21
         payView.tag = variant.rawValue
-        //gesture
+        payView.addGestureRecognizer(tapGesture)
+        
         
         switch variant {
         case .small:
